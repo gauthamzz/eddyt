@@ -1,0 +1,36 @@
+{
+	"results": [
+	  {
+		"alternatives": [
+		  {
+			"transcript": "hi I'd like to buy a Chromecast I'm always wondering whether you could help me with that",
+			"confidence": 0.8991147,
+            "words": [
+              {
+                "startTime": "1.400s",
+                "endTime": "1.800s",
+                "word": "okay"
+              },
+              {
+                "startTime": "1.800s",
+                "endTime": "2.300s",
+                "word": "so"
+			  }
+			]
+		  }
+		],
+		"channelTag": 1,
+		"languageCode": "en-us"
+	  },
+	  {
+		"alternatives": [
+		  {
+			"transcript": "certainly which color would you like we have blue black and red",
+			"confidence": 0.9408236
+		  }
+		],
+		"channelTag": 2,
+		"languageCode": "en-us"
+	  }
+	]
+}
