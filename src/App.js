@@ -1551,7 +1551,7 @@ const json = {
 };
 
 const speakers = ["", "adam", "john", "sophie", "edward"];
-const dialog = (sentence, i) => {
+const dialog = (sentence, i, RemoveTimeFrame) => {
   let conversations = [];
   if (i !== 2) {
     return null;
@@ -1559,18 +1559,21 @@ const dialog = (sentence, i) => {
   let currentSpeaker;
   let temp = "";
   let lastword;
+  let epic = []
   sentence.words.map(word => {
     // console.log(word)
     if (currentSpeaker != word.speakerTag) {
-      conversations.push([currentSpeaker, temp, word]);
+      epic.push(word)
+      conversations.push([currentSpeaker, temp, epic]);
       // console.log("speaker changed", temp);
       currentSpeaker = word.speakerTag;
       temp = "";
+      epic = []
     }
     temp = temp + " " + word.word;
-    lastword = word;
+    epic.push(word);
   });
-  conversations.push([currentSpeaker, temp, lastword]);
+  conversations.push([currentSpeaker, temp, epic]);
   let remove_first = conversations.splice(0, 1);
   // console.log(conversations);
 
@@ -1603,15 +1606,11 @@ const dialog = (sentence, i) => {
         console.log(part.value, color);
 
         if(part.removed){
-          var change = part.value
-          var olderwords = chat[1].split(" ")
-          olderwords.map( (word, i) => {
-            console.log(change)
-            console.log(word)
-            if(word === change){
-              console.log("FOUND")
-            }
-          })
+          var el = part.value
+          var olderwords = chat[1].split(/[\s,]+/)
+          var index = olderwords.indexOf(String(el).trim())
+          // console.log(chat[2][index - 1])
+          RemoveTimeFrame(chat[2][index - 1])
         }
       });
     })
@@ -1700,6 +1699,10 @@ const Chat = (chat, speakerId, obj, index, valueAdded) => {
 };
 
 function MyDropzone() {
+  const RemoveTimeFrame = (value) => {
+    console.log("removed")
+    console.log(value)
+  }
   const onDrop = useCallback(acceptedFiles => {
     // Do something with the files
     console.log(acceptedFiles);
@@ -1723,7 +1726,7 @@ function MyDropzone() {
       </div> */}
       <div>
         {json.results.map((alternative, i) =>
-          dialog(alternative.alternatives[0], i)
+          dialog(alternative.alternatives[0], i, RemoveTimeFrame)
         )}
       </div>
     </div>
