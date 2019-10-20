@@ -1796,7 +1796,7 @@ function MyDropzone() {
     const data = new FormData()
     data.append('file', sound)
     // axios.defaults.headers.post['Content-Type'] ='application/x-www-form-urlencoded';
-    axios.post("https://e7e24ebb.ngrok.io/uploader", data, { // receive two parameter endpoint url ,form data 
+    axios.post("https://cors-anywhere.herokuapp.com/https://e7e24ebb.ngrok.io/uploader", data, { // receive two parameter endpoint url ,form data 
   })
   .then(res => { // then print response status
     console.log(res)
