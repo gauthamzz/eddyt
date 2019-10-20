@@ -3,6 +3,7 @@ import React, { useCallback, useState, useRef } from "react";
 import { useDropzone } from "react-dropzone";
 import { Howl } from "howler";
 import TextareaAutosize from "react-autosize-textarea";
+import axios from 'axios';
 var Diff = require("diff");
 
 let audioRecieved = false;
@@ -1701,9 +1702,14 @@ function MyDropzone() {
     removed.push(value);
   };
 
-  const PlayEverything = () => {
+  const PlayEverything =  () => {
     var removal = [...new Set(removed)];
     console.log(removal);
+
+    const getTime = el => {
+      var val = el.replace("s", "").replace(".", "");
+      return parseInt(val);
+    };
 
     if (removal) {
       console.log(removal);
@@ -1712,45 +1718,71 @@ function MyDropzone() {
       var end;
       var k = 0;
       removal.map(el => {
-        var end = parseInt(el["startTime"].replace("s", "").replace(".", ""));
+        var end = getTime(el["startTime"]);
+        // var end = parseInt(el["startTime"];
         console.log([el["startTime"], el["endTime"]]);
-        sprites.push([start, end]);
-        if (!soundState._sprite.one)
-          soundState._sprite.one = [start, end - start];
-        else if (!soundState._sprite.two)
-          soundState._sprite.two = [start, end - start];
-        else  if (!soundState._sprite.three)
-          soundState._sprite.three = [start, end - start];
-         else if (!soundState._sprite.four)
-          soundState._sprite.four = [start, end - start];
-          else if (!soundState._sprite.five)
-          soundState._sprite.four = [start, end - start];
+        sprites.push([start, end - start]);
+        // if (!soundState._sprite.one)
+        //   soundState._sprite.one = [start, end - start];
+        // else if (!soundState._sprite.two)
+        //   soundState._sprite.two = [start, end - start];
+        // else if (!soundState._sprite.three)
+        //   soundState._sprite.three = [start, end - start];
+        // else if (!soundState._sprite.four)
+        //   soundState._sprite.four = [start, end - start];
+        // else if (!soundState._sprite.five)
+        //   soundState._sprite.four = [start, end - start];
         console.log(sprites);
-        start = parseInt(el["endTime"].replace("s", "").replace(".", ""));
+        // start = parseInt(el["endTime"].replace("s", "").replace(".", ""));
+        start = getTime(el["endTime"]);
       });
 
-      sprites.push([
-        parseInt(
-          removal[removal.length - 1]["endTime"]
-            .replace("s", "")
-            .replace(".", "")
-        )
-      ]);
+      sprites.push([getTime(removal[removal.length - 1]["endTime"])]);
       // sound.play()
       console.log(sprites);
+      console.log("PLAYING......TADAAAA")
 
-      if (soundState._sprite.one)
-      soundState.play("one");
-      if (soundState._sprite.two)
-      soundState.play("two");
-      if (soundState._sprite.three)
-      soundState.play("three");
-      if (soundState._sprite.four)
-      soundState.play("four");
-      if (soundState._sprite.five)
-      soundState.play("five");
+      // soundState.seek(500);
+      
+      console.log(soundState)
+
+      var id = soundState.play();
+
+      soundState.seek(1000, id);
       soundState.play()
-      console.log(soundState.pos());
+
+      // sprites.map(async val => {
+      //   console.log(val[0])
+      //   await new Promise(resolve => {
+      //     setTimeout(resolve, val[1])}
+      //     );
+      //   soundState.pause()          
+      //   soundState.seek(val[0], id);
+      //   soundState.play()
+      //   // soundState.play();
+      // });
+
+      // if (soundState._sprite.one) {
+      //   soundState.play("one");
+      //   await new Promise(resolve => setTimeout(resolve, sprites[0][1]));
+      // }
+      // if (soundState._sprite.two) {
+      //   soundState.play("two");
+      //   await new Promise(resolve => setTimeout(resolve, sprites[1][1]));
+      // }
+      // if (soundState._sprite.three) {
+      //   soundState.play("three");
+      //   await new Promise(resolve => setTimeout(resolve, sprites[2][1]));
+      // }
+      // if (soundState._sprite.four) {
+      //   soundState.play("four");
+      //   await new Promise(resolve => setTimeout(resolve, sprites[3][1]));
+      // }
+      // if (soundState._sprite.five) {
+      //   soundState.play("five");
+      //   await new Promise(resolve => setTimeout(resolve, sprites[4][1]));
+      // }
+      // console.log(soundState.pos());
     }
   };
   const onDrop = useCallback(acceptedFiles => {
@@ -1760,6 +1792,16 @@ function MyDropzone() {
     var sound = new Howl({
       src: [require("./" + acceptedFiles[0].path)]
     });
+
+    const data = new FormData()
+    data.append('file', sound)
+    // axios.defaults.headers.post['Content-Type'] ='application/x-www-form-urlencoded';
+    axios.post("https://e7e24ebb.ngrok.io/uploader", data, { // receive two parameter endpoint url ,form data 
+  })
+  .then(res => { // then print response status
+    console.log(res)
+  })
+
     // sound.play();
     SetSound(sound);
   }, []);
