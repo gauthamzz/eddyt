@@ -1559,16 +1559,16 @@ const dialog = (sentence, i, RemoveTimeFrame) => {
   let currentSpeaker;
   let temp = "";
   let lastword;
-  let epic = []
+  let epic = [];
   sentence.words.map(word => {
     // console.log(word)
     if (currentSpeaker != word.speakerTag) {
-      epic.push(word)
+      epic.push(word);
       conversations.push([currentSpeaker, temp, epic]);
       // console.log("speaker changed", temp);
       currentSpeaker = word.speakerTag;
       temp = "";
-      epic = []
+      epic = [];
     }
     temp = temp + " " + word.word;
     epic.push(word);
@@ -1579,22 +1579,16 @@ const dialog = (sentence, i, RemoveTimeFrame) => {
 
   let newConversations = conversations;
   //eslint-disable-next-line react-hooks/rules-of-hooks
-  const [tempConvo, SetTempCovo] = useState(conversations)
+  const [tempConvo, SetTempCovo] = useState(conversations);
 
   const valueAdded = (value, id) => {
-    var temp = tempConvo
-    temp[id][1] = value
-    SetTempCovo(
-      [
-        ...tempConvo
-      ]
-    )
+    var temp = tempConvo;
+    temp[id][1] = value;
+    SetTempCovo([...tempConvo]);
   };
 
   const getChange = () => {
-
-    conversations.map( (chat, index) => {
-
+    conversations.map((chat, index) => {
       var diff = Diff.diffWords(chat[1], tempConvo[index][1]);
 
       diff.forEach(function(part) {
@@ -1602,19 +1596,17 @@ const dialog = (sentence, i, RemoveTimeFrame) => {
         // grey for common parts
         var color = part.added ? "added" : part.removed ? "removed" : "same";
         // process.stderr.write(part.value[color]);
-        if(color !== "same")
-        console.log(part.value, color);
+        if (color !== "same") console.log(part.value, color);
 
-        if(part.removed){
-          var el = part.value
-          var olderwords = chat[1].split(/[\s,]+/)
-          var index = olderwords.indexOf(String(el).trim())
+        if (part.removed) {
+          var el = part.value;
+          var olderwords = chat[1].split(/[\s,]+/);
+          var index = olderwords.indexOf(String(el).trim());
           // console.log(chat[2][index - 1])
-          RemoveTimeFrame(chat[2][index - 1])
+          RemoveTimeFrame(chat[2][index - 1]);
         }
       });
-    })
-
+    });
   };
   return (
     <div
@@ -1627,8 +1619,10 @@ const dialog = (sentence, i, RemoveTimeFrame) => {
         flexWrap: "wrap"
       }}
     >
-      <button onClick={getChange}>PLAY</button>
-      {conversations.map((chat, index) => Chat(chat[1], chat[0], chat[2], index, valueAdded))}
+      <button onClick={getChange}>Cynthesize</button>
+      {conversations.map((chat, index) =>
+        Chat(chat[1], chat[0], chat[2], index, valueAdded)
+      )}
     </div>
   );
 };
@@ -1699,10 +1693,66 @@ const Chat = (chat, speakerId, obj, index, valueAdded) => {
 };
 
 function MyDropzone() {
-  const RemoveTimeFrame = (value) => {
-    console.log("removed")
-    console.log(value)
-  }
+  const [soundState, SetSound] = useState();
+  var removed = [];
+  const RemoveTimeFrame = value => {
+    console.log("removed");
+    console.log(value);
+    removed.push(value);
+  };
+
+  const PlayEverything = () => {
+    var removal = [...new Set(removed)];
+    console.log(removal);
+
+    if (removal) {
+      console.log(removal);
+      var sprites = [];
+      var start = 0;
+      var end;
+      var k = 0;
+      removal.map(el => {
+        var end = parseInt(el["startTime"].replace("s", "").replace(".", ""));
+        console.log([el["startTime"], el["endTime"]]);
+        sprites.push([start, end]);
+        if (!soundState._sprite.one)
+          soundState._sprite.one = [start, end - start];
+        else if (!soundState._sprite.two)
+          soundState._sprite.two = [start, end - start];
+        else  if (!soundState._sprite.three)
+          soundState._sprite.three = [start, end - start];
+         else if (!soundState._sprite.four)
+          soundState._sprite.four = [start, end - start];
+          else if (!soundState._sprite.five)
+          soundState._sprite.four = [start, end - start];
+        console.log(sprites);
+        start = parseInt(el["endTime"].replace("s", "").replace(".", ""));
+      });
+
+      sprites.push([
+        parseInt(
+          removal[removal.length - 1]["endTime"]
+            .replace("s", "")
+            .replace(".", "")
+        )
+      ]);
+      // sound.play()
+      console.log(sprites);
+
+      if (soundState._sprite.one)
+      soundState.play("one");
+      if (soundState._sprite.two)
+      soundState.play("two");
+      if (soundState._sprite.three)
+      soundState.play("three");
+      if (soundState._sprite.four)
+      soundState.play("four");
+      if (soundState._sprite.five)
+      soundState.play("five");
+      soundState.play()
+      console.log(soundState.pos());
+    }
+  };
   const onDrop = useCallback(acceptedFiles => {
     // Do something with the files
     console.log(acceptedFiles);
@@ -1710,20 +1760,22 @@ function MyDropzone() {
     var sound = new Howl({
       src: [require("./" + acceptedFiles[0].path)]
     });
-    // sound.play();s
+    // sound.play();
+    SetSound(sound);
   }, []);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
   return (
     <div>
-      {/* <div {...getRootProps()}>
+      <div {...getRootProps()}>
         <input {...getInputProps()} />
         {isDragActive ? (
           <p>Drop the files here ...</p>
         ) : (
           <p>Drag 'n' drop some files here, or click to select files</p>
         )}
-      </div> */}
+      </div>
+      <button onClick={PlayEverything}>PLAY</button>
       <div>
         {json.results.map((alternative, i) =>
           dialog(alternative.alternatives[0], i, RemoveTimeFrame)
